@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "/FNaKyk8OAe01M4EU6KXpQkd0NcE39Y7AAtwyf5AMiU=",
+  "Source": "BankAccountNotificationAPI",
+  "BasePath": "_content/BankAccountNotificationAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
