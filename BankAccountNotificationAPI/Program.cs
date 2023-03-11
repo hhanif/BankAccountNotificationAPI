@@ -1,4 +1,4 @@
-// - The overall larger application's main feature set is to connect to third party banks and aggregate a customer's account information.
+﻿// - The overall larger application's main feature set is to connect to third party banks and aggregate a customer's account information.
 // - The purpose of the code below is to provide notifications of changes in their account and to also provide budgeting capabilities.
 // - Make assumptions during this implementation to simplify the delivery, list them:
 // - E.g. Security to bank provider is not in the solution but it is expected that the bank will enforce a certain technology choice and this can be added later
@@ -24,6 +24,7 @@ using System.Web;
 using System.Threading.Tasks;
 using System.Net.Http.Headers;
 using System.Threading.Channels;
+using System.Security.Principal;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<BankAccountDb>(opt => opt.UseInMemoryDatabase("BankAccountList"));
@@ -82,7 +83,7 @@ app.MapPost("/connectAccount", async (BankAccount account, BankAccountDb db) =>
         //SendNotificationToCustomer(account);
         // MOBILE --> Notify customer of successful connection 
         //await NotificationService.SendNotificationAsync(customer.MobileDeviceToken, "Bank account connected.");
-        return Results.Created($"/addbankAccount/{account.Id}", account);
+        return Results.Ok(account.Balance);
     }
     else return Results.NotFound();
 
@@ -100,26 +101,19 @@ async Task<bool> ConnectToBankAPI(BankAccount account)
     //return response.IsSuccessStatusCode;
 
     // replace with appropriate code for checking if balance has changed
-    //bool balanceChanged = false;
-    //while (!balanceChanged)
-    //{
-    //    // wait for some time before checking again
-    //    await Task.Delay(TimeSpan.FromSeconds(2));
-    //    //balanceChanged = SimulateBalanceChange(account);
-    //}
-
+    account.Balance = 15;
     return true;
 }
-//bool SimulateBalanceChange(BankAccount account)
-//{
-//    // Simulate a balance change by adding or subtracting a random amount
-//    decimal change = _random.Next(-100, 100) / 100.0m;
-//    account.Balance += change;
+bool SimulateBalanceChange(BankAccount account)
+{
+    //    // Simulate a balance change by adding or subtracting a random amount
+    decimal change = _random.Next(-100, 100) / 100.0m;
+    account.Balance += change;
 //    // code to send a notification for balance change:
 //    // In a real implementation, this would be sent via the customers mobile app
 //    Console.WriteLine($"Balance changed for account {account.AccountNumber}:  {account.Balance}");
-//    return true;
-//}
+    return true;
+}
 app.MapPut("/changeBalance/{id}", async (int id, BankAccountDb db) =>
 {
     var acc_id = await db.BankAccounts.FindAsync(id);
@@ -131,10 +125,9 @@ app.MapPut("/changeBalance/{id}", async (int id, BankAccountDb db) =>
     // code to send a notification for balance change:
     // In a real implementation, this would be sent via the customers mobile app
     Console.WriteLine($"Balance changed for account {acc_id.AccountNumber}:  {acc_id.Balance}");
-
     await db.SaveChangesAsync();
 
-    return Results.NoContent();
+    return Results.Ok(acc_id.Balance);
 });
 
 //For internal-testing purposes: making sure connect account works and delete data from database
